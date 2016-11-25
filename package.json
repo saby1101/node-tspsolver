@@ -1,6 +1,6 @@
 {
     "name": "node-tspsolver",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "TSP solver",
     "main": "src/index.js",
     "repository": {
@@ -12,11 +12,10 @@
     },
     "author": "Saby",
     "license": "ISC",
-    "devDependencies": {
+    "devDependencies": {},
+    "dependencies": {
+        "bindings": "^1.2.1",
         "cmake-js": "^3.3.1",
         "nan": "^2.4.0"
-    },
-    "dependencies": {
-        "bindings": "^1.2.1"
     }
 }

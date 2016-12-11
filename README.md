@@ -7,6 +7,8 @@ Initial solution is constructed using Nearest Neighbour heuristic.
 
 Tour transformations used in the local search step: 2-opt, translation and swapping.
 
+The solver is implemented in C++ and doesn't use the nodejs main event loop for running, hence non-blocking.
+
 <strong>Signature:</strong>
 
 function solveTsp(costMatrix, roundtrip, options, callback)
@@ -20,16 +22,17 @@ costMatrix- 2d array of costs .. costMatrix[i][j] gives cost between ith and jth
 roundtrip- whether salesman needs to get back to starting point, ie point at index 0. If false, point at n - 1 is treated as the end point
 
 options- {<br/>
-    N - 'number of iterations' default: 80000, <br/>
+    N - 'number of iterations' default: 200000, <br/>
     T - 'Initial temperature' default: 110, <br/>
     lambda - 'Annealing parameter' default: 0.999, <br/>
-    reheatInterval - 'period after which to reset temperature' default: N / 2, <br/>
+    reheatInterval - 30000, <br/>
 } <br/>
 
 callback- function (err, result) {}
 
 <strong>Install:</strong>
 <code>npm install node-tspsolver</code>
+<br/>Requires cmake installed. In macOs: <code> brew install cmake </code></br>
 
 <strong>Examples:</strong>
 <pre><code>

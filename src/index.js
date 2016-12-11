@@ -25,7 +25,7 @@ exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
     if (typeof roundtrip !== 'boolean') { return callbackError('roundtrip expected to be a boolean!') }
 
     var opts = Object.assign({
-        N: 120000,
+        N: 200000,
         T: 110,
         lambda: 0.999,
         reheatInterval: 30000

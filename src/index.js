@@ -13,12 +13,22 @@ exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
         return callbackError("Costmatrix should only contain finite numbers!")
     }
 
+    if (costMatrix.length < 1) {
+        return callbackError("Empty costMatrix.")
+    }
+
+    if (costMatrix.length === 1) {
+        if (callback == null) { return Promise.resolve([0]) }
+        else { return callback(null, [0]) }
+    }
+
     if (typeof roundtrip !== 'boolean') { return callbackError('roundtrip expected to be a boolean!') }
 
     var opts = Object.assign({
-        N: 80000,
+        N: 120000,
         T: 110,
-        lambda: 0.999
+        lambda: 0.999,
+        reheatInterval: 30000
     }, Object(options))
 
     if (!Number.isInteger(opts.N) || opts.N < 0) { return callbackError('Invalid opts!') }

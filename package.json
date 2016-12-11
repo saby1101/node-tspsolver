@@ -1,21 +1,23 @@
 {
-    "name": "node-tspsolver",
-    "version": "0.0.3",
-    "description": "TSP solver",
-    "main": "src/index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/saby-echo/node-tspsolver.git"
-    },
-    "scripts": {
-        "install": "cmake-js compile"
-    },
-    "author": "Saby",
-    "license": "ISC",
-    "devDependencies": {},
-    "dependencies": {
-        "bindings": "^1.2.1",
-        "cmake-js": "^3.3.1",
-        "nan": "^2.4.0"
-    }
+  "name": "node-tspsolver",
+  "version": "0.0.4",
+  "description": "TSP solver",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saby-echo/node-tspsolver.git"
+  },
+  "scripts": {
+    "install": "cmake-js compile"
+  },
+  "author": "Saby",
+  "license": "ISC",
+  "devDependencies": {
+    "ava": "^0.17.0"
+  },
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "cmake-js": "^3.3.1",
+    "nan": "^2.4.0"
+  }
 }

@@ -2,7 +2,11 @@ var addon = require('bindings')('node_tspsolver')
 
 exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
     function callbackError(message) {
-        return callback(new Error(message))
+        if (callback != null && typeof callback === 'function') {
+            return callback(new Error(message))
+        } else {
+            return Promise.reject(new Error(message))
+        }
     }
 
     if (!Array.isArray(costMatrix) || costMatrix.some(row => !Array.isArray(row) || row.length !== costMatrix.length)) {
@@ -17,12 +21,16 @@ exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
         return callbackError("Empty costMatrix.")
     }
 
-    if (costMatrix.length === 1) {
-        if (callback == null) { return Promise.resolve([0]) }
-        else { return callback(null, [0]) }
-    }
+    roundtrip = roundtrip == null ? true : roundtrip
 
     if (typeof roundtrip !== 'boolean') { return callbackError('roundtrip expected to be a boolean!') }
+
+    if (costMatrix.length === 1) {
+        const route = roundtrip ? [0, 0] : [0]
+
+        if (callback != null && typeof callback === 'function') { return callback(null, route) }
+        else { return Promise.resolve(route) }
+    }
 
     var opts = Object.assign({
         N: 200000,
@@ -41,12 +49,10 @@ exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
 
     if (callback != null && typeof callback === 'function') {
         addon.solveTsp(costMatrix, roundtrip, opts, callback)
-    } else if (callback == null) {
-        return new Promise((resolve, reject) => exports.solveTsp(costMatrix, roundtrip, opts, (err, result) => {
+    } else {
+        return new Promise((resolve, reject) => addon.solveTsp(costMatrix, roundtrip, opts, (err, result) => {
             if (err) { reject(err) }
             else { resolve(result) }
         }))
-    } else {
-        return callbackError('callback needs to be function if provided!')
     }
 }

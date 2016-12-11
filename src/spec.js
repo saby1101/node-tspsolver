@@ -52,3 +52,30 @@ function testDataset(name, optimalTourCost, allowedError) {
     ['d3j8', 6656, 0.1],
     ['qa194', 9352, 0.2]
 ].forEach(val => testDataset(val[0], val[1], val[2]))
+
+test('1 point tsp', t => {
+    const cm = [[0]]
+
+    return Promise.all([
+        solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0])),
+        solver.solveTsp(cm, true).then(tour => t.deepEqual(tour, [0, 0])),
+    ])
+})
+
+test('2 point tsp', t => {
+    const cm = [[0, 1], [1, 0]]
+
+    return Promise.all([
+        solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0, 1])),
+        solver.solveTsp(cm, true).then(tour => t.deepEqual(tour, [0, 1, 0])),
+    ])
+})
+
+test('3 point tsp', t => {
+    const cm = [[0, 1, 2], [1, 0, 2], [3, 2, 0]]
+
+    return Promise.all([
+        solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0, 1, 2])),
+        solver.solveTsp(cm, true).then(tour => t.deepEqual(tour, [0, 2, 1, 0])),
+    ])
+})

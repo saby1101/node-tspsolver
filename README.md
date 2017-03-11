@@ -22,10 +22,10 @@ costMatrix- 2d array of costs .. costMatrix[i][j] gives cost between ith and jth
 roundtrip- whether salesman needs to get back to starting point, ie point at index 0. If false, point at n - 1 is treated as the end point
 
 options- {<br/>
-    N - 'number of iterations' default: 200000, <br/>
-    T - 'Initial temperature' default: 110, <br/>
-    lambda - 'Annealing parameter' default: 0.999, <br/>
-    reheatInterval - 30000, <br/>
+    N - 'number of iterations' default: 1000000, <br/>
+    T - 'Initial temperature' default: 100, <br/>
+    lambda - 'Annealing parameter' default: 0.985, <br/>
+    reheatInterval - 100000, <br/>
 } <br/>
 
 callback- function (err, result) {}

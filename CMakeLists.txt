@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 2.6)
 
 project(node_tspsolver)
 
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+
 set(CMAKE_MACOSX_RPATH ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -ffast-math -march=native -mtune=native")
 
 file(GLOB SOURCE_FILES "src/*.cpp" "src/*.h")
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})

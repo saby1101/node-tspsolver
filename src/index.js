@@ -33,10 +33,10 @@ exports.solveTsp = function (costMatrix, roundtrip, options, callback) {
     }
 
     var opts = Object.assign({
-        N: 200000,
-        T: 110,
-        lambda: 0.999,
-        reheatInterval: 30000
+        N: 1000000,
+        T: 100,
+        lambda: 0.985,
+        reheatInterval: 100000
     }, Object(options))
 
     if (!Number.isInteger(opts.N) || opts.N < 0) { return callbackError('Invalid opts!') }

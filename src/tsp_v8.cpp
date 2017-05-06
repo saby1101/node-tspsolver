@@ -60,7 +60,7 @@ public:
   void HandleOKCallback() {
     HandleScope scope;
     auto pathArr = New<Array>();
-    for (auto i = 0; i < path.size(); i++) {
+    for (unsigned i = 0; i < path.size(); i++) {
       pathArr->Set(i, New<Integer>((int)path[i]));
     }
     Local<Value> argv[] = {Null(), pathArr};

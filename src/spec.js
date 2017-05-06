@@ -1,12 +1,12 @@
-const test = require('ava')
-const fs = require('fs')
+var test = require('ava')
+var fs = require('fs')
 
-const tsplibReader = require('./tsplib_reader')
-const solver = require('./index')
+var tsplibReader = require('./tsplib_reader')
+var solver = require('./index')
 
 function tourCost(points, costMatrix) {
-    let sum = 0
-    for (let i = 0; i < points.length - 1; i++) {
+    var sum = 0
+    for (var i = 0; i < points.length - 1; i++) {
         sum = sum + costMatrix[points[i]][points[i + 1]]
     }
     return sum
@@ -15,11 +15,11 @@ function tourCost(points, costMatrix) {
 function validateTour(tour, numPoints) {
     if (tour[0] !== 0 || tour[tour.length - 1] !== 0) { return false }
 
-    const waypoints = tour.slice(1, tour.length - 1)
+    var waypoints = tour.slice(1, tour.length - 1)
 
     if (new Set(waypoints).size !== waypoints.length) { return false }
 
-    for (let i = 0; i < numPoints; i++) {
+    for (var i = 0; i < numPoints; i++) {
         if (tour.filter(p => p === i)[0] == null) { return false }
     }
 
@@ -32,16 +32,16 @@ function prettyNumber(num) {
 
 function testDataset(name, optimalTourCost) {
     test(name, t => {
-        const data = fs.readFileSync(__dirname + '/testcases/' + name, 'utf8')
+        var data = fs.readFileSync(__dirname + '/testcases/' + name, 'utf8')
 
-        const costMatrix = tsplibReader.read(data)
+        var costMatrix = tsplibReader.read(data)
 
-        const start = Date.now()
+        var start = Date.now()
         return solver.solveTsp(costMatrix, true, {})
             .then(tour => {
-                const end = Date.now()
+                var end = Date.now()
                 t.true(validateTour(tour), 'Invalid tour!')
-                const cost = tourCost(tour, costMatrix)
+                var cost = tourCost(tour, costMatrix)
                 t.true(cost >= optimalTourCost, 'Cannot be better than optimal!')
                 console.log(name, "-->",
                     "Cost: ", cost,
@@ -62,7 +62,7 @@ function testDataset(name, optimalTourCost) {
 ].forEach(val => testDataset(val[0], val[1]))
 
 test('1 point tsp', t => {
-    const cm = [[0]]
+    var cm = [[0]]
 
     return Promise.all([
         solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0])),
@@ -71,7 +71,7 @@ test('1 point tsp', t => {
 })
 
 test('2 point tsp', t => {
-    const cm = [[0, 1], [1, 0]]
+    var cm = [[0, 1], [1, 0]]
 
     return Promise.all([
         solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0, 1])),
@@ -80,7 +80,7 @@ test('2 point tsp', t => {
 })
 
 test('3 point tsp', t => {
-    const cm = [[0, 1, 2], [1, 0, 2], [3, 2, 0]]
+    var cm = [[0, 1, 2], [1, 0, 2], [3, 2, 0]]
 
     return Promise.all([
         solver.solveTsp(cm, false).then(tour => t.deepEqual(tour, [0, 1, 2])),

@@ -1,6 +1,6 @@
 {
     "name": "node-tspsolver",
-    "version": "0.0.7",
+    "version": "1.0.0",
     "description": "TSP solver",
     "main": "src/index",
     "types": "lib/index",
@@ -9,20 +9,19 @@
         "url": "https://github.com/saby-echo/node-tspsolver.git"
     },
     "scripts": {
-        "install": "cmake-js compile",
         "test": "ava src/spec.js"
     },
+    "engineStrict" : true,
     "engines": {
-        "node": ">=4.0.0"
+        "node": ">=5.0.0"
     },
     "author": "Saby",
-    "license": "ISC",
+    "license": "MIT",
     "devDependencies": {
-        "ava": "^0.17.0"
+        "ava": "^0.19.0"
     },
     "dependencies": {
-        "bindings": "^1.2.1",
-        "cmake-js": "^3.3.1",
-        "nan": "^2.4.0"
+        "bindings": "^1.2.0",
+        "nan": "^2.2.0"
     }
 }

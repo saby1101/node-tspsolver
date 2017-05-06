@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/saby1101/node-tspsolver.svg?branch=master)](https://travis-ci.org/saby1101/node-tspsolver)
+
 # node-tspsolver
 Travelling salesman solver for nodejs
 
@@ -5,34 +7,29 @@ This solver uses Simulated Annealing with optional periodic reheating.
 
 Initial solution is constructed using Nearest Neighbour heuristic.
 
-Tour transformations used in the local search step: 2-opt, translation and swapping.
+Tour transformations used in the local search step: Stochastic 2-opt, translation and swapping.
 
 The solver is implemented in C++ and doesn't use the nodejs main event loop for running, hence non-blocking.
 
 <strong>Signature:</strong>
 
-function solveTsp(costMatrix, roundtrip, options, callback)
-
-function solveTsp(costMatrix, roundtrip, options) returns a promise
+`function solveTsp(costMatrix, roundtrip, options)` returns a promise
 
 <strong>Arguments:</strong>
 
-costMatrix- 2d array of costs .. costMatrix[i][j] gives cost between ith and jth points
+`costMatrix` - 2d array of costs .. costMatrix[i][j] gives cost between ith and jth points
 
-roundtrip- whether salesman needs to get back to starting point, ie point at index 0. If false, point at n - 1 is treated as the end point
+`roundtrip` - whether salesman needs to get back to starting point, ie point at index 0. If false, point at n - 1 is treated as the end point
 
-options- {<br/>
-    N - 'number of iterations' default: 1000000, <br/>
-    T - 'Initial temperature' default: 100, <br/>
-    lambda - 'Annealing parameter' default: 0.985, <br/>
-    reheatInterval - 100000, <br/>
+`options` - {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;N - 'number of iterations' default: 1000000, <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;T - 'Initial temperature' default: 100, <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;lambda - 'Annealing parameter' default: 0.985, <br/>
+&nbsp;&nbsp;&nbsp;&nbsp;reheatInterval - 100000, <br/>
 } <br/>
-
-callback- function (err, result) {}
 
 <strong>Install:</strong>
 <code>npm install node-tspsolver</code>
-<br/>Requires cmake installed. In macOs: <code> brew install cmake </code></br>
 
 <strong>Examples:</strong>
 <pre><code>
@@ -46,8 +43,10 @@ var costMatrix = [
     [4, 3, 5, 0]
 ]
 
-solver.solveTsp(costMatrix, true, {}, function (err, result)) {
-    console.log(result) // result is an array of indices specifying the route.
-}
+solver
+    .solveTsp(costMatrix, true, {})
+    .then(function (result)) {
+        console.log(result) // result is an array of indices specifying the route.
+    })
 
 </code></pre>

@@ -1,11 +1,11 @@
 
 function readLocations(data) {
-    const lines = data.split('\n')
+    var lines = data.split('\n')
 
-    let i = 0
-    let dimensions, edgeWeightType
+    var i = 0
+    var dimensions, edgeWeightType
     for (; i < lines.length; i++) {
-        const line = lines[i]
+        var line = lines[i]
 
         if (line.startsWith('DIMENSION')) {
             dimensions = parseInt(line.split(':')[1].trim())
@@ -22,11 +22,11 @@ function readLocations(data) {
         throw new Error('Only support EUC_2D for now!')
     }
 
-    const locations = []
+    var locations = []
 
     for (; i < lines.length; i++) {
-        const line = lines[i]
-        const objs = line.split(' ')
+        var line = lines[i]
+        var objs = line.split(' ')
         locations.push({
             id: parseInt(objs[0]),
             x: parseFloat(objs[1]),
@@ -38,10 +38,10 @@ function readLocations(data) {
         throw new Error('Dimensions dont match number of locations')
     }
 
-    const matrix = []
-    for (let i = 0; i < dimensions; i++) {
+    var matrix = []
+    for (var i = 0; i < dimensions; i++) {
         matrix[i] = []
-        for (let j = 0; j < dimensions; j++) {
+        for (var j = 0; j < dimensions; j++) {
             matrix[i][j] = Math.round(euc2D(locations[i], locations[j]))
         }
     }

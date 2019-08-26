@@ -1,86 +1,81 @@
-#include <iostream>
 #include <nan.h>
 #include <vector>
 
 #include "tsp.h"
 #include "tsp_v8.h"
 
-using v8::Function;
-using v8::Local;
-using v8::Integer;
-using v8::Array;
-using v8::Number;
-using v8::String;
-using v8::Value;
-using v8::Object;
-using Nan::AsyncQueueWorker;
-using Nan::AsyncWorker;
-using Nan::Callback;
-using Nan::HandleScope;
-using Nan::New;
-using Nan::Null;
-using Nan::To;
-
-class TspWorker : public AsyncWorker {
+class TspWorker : public Nan::AsyncWorker {
   const bool roundtrip;
-  const unsigned N;
-  const unsigned T;
+  const uint32_t N;
+  const uint32_t T;
   const double lambda;
-  const int reheatInterval;
+  const uint32_t reheatInterval;
 
   std::vector<std::vector<double>> costMatrix;
 
-  std::vector<unsigned long> path;
+  tsp::path_type path;
 
 public:
-  TspWorker(Local<Array> costMatrixArr, bool roundtrip, unsigned N, unsigned T,
-            double lambda, unsigned reheatInterval, Callback *onRound,
-            Callback *callback)
+  TspWorker(v8::Local<v8::Array> costMatrixArr, bool roundtrip, uint32_t N,
+            uint32_t T, double lambda, uint32_t reheatInterval,
+            Nan::Callback *onRound, Nan::Callback *callback)
       : AsyncWorker(callback), roundtrip(roundtrip), N(N), T(T), lambda(lambda),
         reheatInterval(reheatInterval) {
 
-    auto size = costMatrixArr->Length();
+    auto size = costMatrixArr.As<v8::Array>()->Length();
     costMatrix =
         std::vector<std::vector<double>>(size, std::vector<double>(size, 0));
 
-    for (unsigned i = 0; i < size; i++) {
-      for (unsigned j = 0; j < size; j++) {
-        auto row = costMatrixArr->Get(i).As<Array>();
-        auto cost = row->Get(j)->NumberValue();
+    for (uint32_t i = 0; i < size; i++) {
+      for (uint32_t j = 0; j < size; j++) {
+        auto row = Nan::Get(costMatrixArr, i).ToLocalChecked().As<v8::Array>();
+        auto costLocal = Nan::Get(row, j).ToLocalChecked();
+        auto cost = Nan::To<double>(costLocal).FromJust();
         costMatrix[i][j] = cost;
       }
     }
   }
 
   void Execute() {
-    path = tms::solveTsp(N, T, lambda, reheatInterval, nullptr, costMatrix,
+    path = tsp::solveTsp(N, T, lambda, reheatInterval, nullptr, costMatrix,
                          roundtrip);
   }
 
   void HandleOKCallback() {
-    HandleScope scope;
-    auto pathArr = New<Array>();
-    for (unsigned i = 0; i < path.size(); i++) {
-      pathArr->Set(i, New<Integer>((int)path[i]));
+    Nan::HandleScope scope;
+    auto pathArr = Nan::New<v8::Array>();
+    for (uint32_t i = 0; i < path.size(); i++) {
+      Nan::Set(pathArr, i, Nan::New<v8::Integer>(path[i]));
     }
-    Local<Value> argv[] = {Null(), pathArr};
+    v8::Local<v8::Value> argv[] = {Nan::Null(), pathArr};
 
-    callback->Call(2, argv);
+    Nan::Call(*callback, 2, argv);
   }
 };
 
 NAN_METHOD(SolveTsp) {
-  Local<Array> costMatrixArr = info[0].As<Array>();
-  bool roundtrip = info[1]->BooleanValue();
-  Local<Object> opts = info[2].As<Object>();
+  auto costMatrixArr = info[0].As<v8::Array>();
+  auto roundtrip = Nan::To<bool>(info[1]).FromJust();
+  auto opts = info[2].As<v8::Object>();
 
-  unsigned N = opts->Get(New("N").ToLocalChecked())->Uint32Value();
-  unsigned T = opts->Get(New("T").ToLocalChecked())->Uint32Value();
-  double lambda = opts->Get(New("lambda").ToLocalChecked())->NumberValue();
-  unsigned reheatInterval =
-      opts->Get(New("reheatInterval").ToLocalChecked())->Uint32Value();
+  auto N = Nan::To<uint32_t>(
+               Nan::Get(opts, Nan::New("N").ToLocalChecked()).ToLocalChecked())
+               .FromJust();
+  auto T = Nan::To<uint32_t>(
+               Nan::Get(opts, Nan::New("T").ToLocalChecked()).ToLocalChecked())
+               .FromJust();
+  auto lambda =
+      Nan::To<double>(
+          Nan::Get(opts, Nan::New("lambda").ToLocalChecked()).ToLocalChecked())
+          .FromJust();
+  auto reheatInterval =
+      Nan::To<double>(
+          Nan::Get(opts, Nan::New("reheatInterval").ToLocalChecked())
+              .ToLocalChecked())
+          .FromJust();
 
-  Callback *callback = new Callback(info[3].As<Function>());
+  auto *callback =
+      new Nan::Callback(Nan::To<v8::Function>(info[3]).ToLocalChecked());
 
   AsyncQueueWorker(new TspWorker(costMatrixArr, roundtrip, N, T, lambda,
                                  reheatInterval, nullptr, callback));

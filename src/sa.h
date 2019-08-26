@@ -6,31 +6,31 @@
 
 #include "random.h"
 
-namespace tms {
+namespace tsp {
 template <typename SolutionType, typename OnRoundType> class SAOptions {
-  const int N;              // Number of iterations
-  const double T;           // Initial temperature
-  const double lambda;      // annealing parameter
-  const int reheatInterval; // Iterations before resetting temperature
+  const uint32_t N;              // Number of iterations
+  const double T;                // Initial temperature
+  const double lambda;           // annealing parameter
+  const uint32_t reheatInterval; // Iterations before resetting temperature
 
   OnRoundType onRound; // Function to call after every iteration
 
 public:
-  SAOptions(int N, double T, double lambda, int reheatInterval,
+  SAOptions(uint32_t N, double T, double lambda, uint32_t reheatInterval,
             OnRoundType onRound)
       : N(N), T(T), lambda(lambda), reheatInterval(reheatInterval),
         onRound(onRound) {}
 
-  int getN() const { return N; }
+  uint32_t getN() const { return N; }
 
   double getT() const { return T; }
 
   double getLambda() const { return lambda; }
 
-  int getReheatInterval() const { return reheatInterval; }
+  uint32_t getReheatInterval() const { return reheatInterval; }
 
-  void callOnRound(int iterations, int reheatCount, double temperature,
-                   const SolutionType &solution) {
+  void callOnRound(uint32_t iterations, uint32_t reheatCount,
+                   double temperature, const SolutionType &solution) {
     onRound.call(iterations, reheatCount, temperature, solution);
   }
 };
@@ -51,12 +51,12 @@ public:
   SolutionType solve(SolutionType initSolution) {
 
     double T = options.getT();
-    int reheatCount = -1;
+    int32_t reheatCount = -1;
 
     auto curSol = initSolution;
     auto bestSol = initSolution;
 
-    for (int i = 0; i < options.getN(); i++) {
+    for (uint32_t i = 0; i < options.getN(); i++) {
       if (i % options.getReheatInterval() == 0) {
         reheatCount++;
         T = options.getT();
@@ -92,4 +92,4 @@ public:
     return bestSol;
   }
 };
-}
+} // namespace tsp

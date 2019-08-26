@@ -9,19 +9,26 @@
         "url": "https://github.com/saby-echo/node-tspsolver.git"
     },
     "scripts": {
-        "test": "ava src/spec.js"
+        "pretty": "prettier --write src/*.js",
+        "test": "jest src/spec.js",
+        "prebuild": "node-gyp configure",
+        "build": "node-gyp build",
+        "rebuild": "node-gyp rebuild",
+        "clean": "node-gyp clean"
     },
-    "engineStrict" : true,
+    "engineStrict": true,
     "engines": {
         "node": ">=5.0.0"
     },
     "author": "Saby",
     "license": "MIT",
     "devDependencies": {
-        "ava": "^0.19.0"
+        "jest": "^24.9.0",
+        "prettier": "^1.18.2"
     },
     "dependencies": {
-        "bindings": "^1.2.0",
-        "nan": "^2.2.0"
+        "bindings": "^1.5.0",
+        "nan": "^2.14.0",
+        "node-gyp": "^5.0.3"
     }
 }

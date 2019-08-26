@@ -5,23 +5,23 @@
 #include "sa.h"
 #include "tsp.h"
 
-namespace tms {
+namespace tsp {
 class Solution;
 
 class SolutionPool {
   const std::vector<std::vector<double>> &costMatrix;
   const bool roundtrip;
-  const UINT pathSize;
+  const uint32_t pathSize;
 
   RealRandomGen randomGen;
-  std::vector<std::vector<UINT>> holder;
-  std::vector<UINT> unused;
+  std::vector<path_type> holder;
+  std::vector<uint32_t> unused;
 
 public:
   SolutionPool(const std::vector<std::vector<double>> &costMatrix,
                bool roundtrip);
 
-  std::vector<UINT> &get(UINT index);
+  path_type &get(uint32_t index);
 
   void reclaim(Solution sol);
 
@@ -31,20 +31,20 @@ public:
 
   double random();
 
-  UINT getPathSize() const;
+  uint32_t getPathSize() const;
 
-  UINT getRandomIndex(UINT start, UINT end);
+  uint32_t getRandomIndex(uint32_t start, uint32_t end);
 
-  double calcCost(const std::vector<UINT> &path);
+  double calcCost(const path_type &path);
 };
 
 class Solution {
   SolutionPool *pool;
-  UINT poolIndex;
+  uint32_t poolIndex;
   mutable double cost;
 
 public:
-  Solution(SolutionPool &pool, UINT poolIndex, double cost);
+  Solution(SolutionPool &pool, uint32_t poolIndex, double cost);
 
   Solution(const Solution &) = default;
 
@@ -56,17 +56,17 @@ public:
 
   double getCost() const;
 
-  std::vector<UINT> &getPath() const;
+  path_type &getPath() const;
 
   Solution neighbour();
 
   void destroy();
 
-  Solution twoOpt(UINT a, UINT b);
+  Solution twoOpt(uint32_t a, uint32_t b);
 
-  Solution translate(UINT a, UINT b);
+  Solution translate(uint32_t a, uint32_t b);
 
-  Solution switching(UINT a, UINT b);
+  Solution switching(uint32_t a, uint32_t b);
 
   friend class SolutionPool;
 };
@@ -77,7 +77,7 @@ class OnRound {
 public:
   OnRound(RoundCallback callback) : callback(callback) {}
 
-  void call(int iterations, int reheatCount, double temperature,
+  void call(uint32_t iterations, uint32_t reheatCount, double temperature,
             const Solution &solution) {
     if (callback != nullptr) {
       callback(iterations, reheatCount, temperature, solution.getPath(),
@@ -86,16 +86,16 @@ public:
   }
 };
 
-std::vector<UINT> solveTsp(int N, double T, double lambda, int reheatInterval,
-                           RoundCallback roundCallback,
-                           const std::vector<std::vector<double>> &costMatrix,
-                           bool roundtrip) {
+path_type solveTsp(uint32_t N, double T, double lambda, uint32_t reheatInterval,
+                   RoundCallback roundCallback,
+                   const std::vector<std::vector<double>> &costMatrix,
+                   bool roundtrip) {
   SolutionPool pool(costMatrix, roundtrip);
 
   auto nnSol = pool.nearestNeighbourCH();
 
   if (N == 0 || pool.getPathSize() < 4) {
-    return std::vector<UINT>(nnSol.getPath());
+    return path_type(nnSol.getPath());
   }
 
   SAOptions<Solution, OnRound> options(N, T, lambda, reheatInterval,
@@ -105,7 +105,7 @@ std::vector<UINT> solveTsp(int N, double T, double lambda, int reheatInterval,
 
   auto bestSolution = solver.solve(nnSol);
 
-  return std::vector<UINT>(bestSolution.getPath());
+  return path_type(bestSolution.getPath());
 }
 
 SolutionPool::SolutionPool(const std::vector<std::vector<double>> &costMatrix,
@@ -113,7 +113,7 @@ SolutionPool::SolutionPool(const std::vector<std::vector<double>> &costMatrix,
     : costMatrix(costMatrix), roundtrip(roundtrip),
       pathSize(costMatrix.size() + (roundtrip ? 1 : 0)), randomGen(0., 1.) {}
 
-std::vector<UINT> &SolutionPool::get(UINT index) { return holder[index]; }
+path_type &SolutionPool::get(uint32_t index) { return holder[index]; }
 
 void SolutionPool::reclaim(Solution sol) {
   if (sol.pool == this) {
@@ -123,7 +123,7 @@ void SolutionPool::reclaim(Solution sol) {
 
 Solution SolutionPool::create() {
   if (unused.empty()) {
-    holder.push_back(std::vector<UINT>(pathSize));
+    holder.push_back(path_type(pathSize));
     unused.push_back(holder.size() - 1);
   }
 
@@ -138,7 +138,7 @@ Solution SolutionPool::nearestNeighbourCH() {
   auto &path = sol.getPath();
 
   auto N = costMatrix.size();
-  auto toVisit = std::vector<int>(costMatrix.size(), 1);
+  auto toVisit = std::vector<uint32_t>(costMatrix.size(), 1);
   auto toVisitCount = N;
 
   auto pi = 0;
@@ -152,12 +152,12 @@ Solution SolutionPool::nearestNeighbourCH() {
     toVisitCount--;
   }
 
-  UINT cur = 0;
+  uint32_t cur = 0;
   while (toVisitCount > 0) {
     bool firstIter = true;
-    UINT nearest = 0;
+    uint32_t nearest = 0;
     double minCost = -1;
-    for (UINT i = 0; i < N; i++) {
+    for (uint32_t i = 0; i < N; i++) {
       if (toVisit[i]) {
         auto cost = costMatrix[cur][i];
         if (firstIter || cost < minCost) {
@@ -188,21 +188,22 @@ Solution SolutionPool::nearestNeighbourCH() {
 
 double SolutionPool::random() { return randomGen(); }
 
-UINT SolutionPool::getPathSize() const { return pathSize; }
+uint32_t SolutionPool::getPathSize() const { return pathSize; }
 
-UINT SolutionPool::getRandomIndex(UINT start, UINT end) {
-  return start + (UINT)std::floor(random() * (end - start));
+uint32_t SolutionPool::getRandomIndex(uint32_t start, uint32_t end) {
+  return start + (uint32_t)std::floor(random() * (end - start));
 }
 
-double SolutionPool::calcCost(const std::vector<UINT> &path) {
+double SolutionPool::calcCost(const path_type &path) {
   double cost = 0;
-  for (UINT i = 0; i + 1 < path.size(); i++) {
+  for (uint32_t i = 0; i + 1 < path.size(); i++) {
     cost += costMatrix[path[i]][path[i + 1]];
   }
   return cost;
 }
 
-Solution::Solution(SolutionPool &pool, const UINT poolIndex, const double cost)
+Solution::Solution(SolutionPool &pool, const uint32_t poolIndex,
+                   const double cost)
     : pool(&pool), poolIndex(poolIndex), cost(cost) {}
 
 double Solution::getCost() const {
@@ -212,12 +213,12 @@ double Solution::getCost() const {
   return cost;
 }
 
-std::vector<UINT> &Solution::getPath() const { return pool->get(poolIndex); }
+path_type &Solution::getPath() const { return pool->get(poolIndex); }
 
 Solution Solution::neighbour() {
   // ensures endpoints are not involved in manipulation
   // assumes path.length >= 4 and k >= 2
-  auto k = 2; // k >= 2
+  uint32_t k = 2; // k >= 2
 
   auto a = pool->getRandomIndex(1, pool->getPathSize() - k);
   auto b = a + pool->getRandomIndex(2, pool->getPathSize() - a);
@@ -239,12 +240,12 @@ Solution Solution::neighbour() {
 
 void Solution::destroy() { pool->reclaim(*this); }
 
-Solution Solution::twoOpt(UINT a, UINT b) {
+Solution Solution::twoOpt(uint32_t a, uint32_t b) {
   auto newSol = pool->create();
   auto &path = getPath();
   auto &newPath = newSol.getPath();
 
-  UINT i = 0, j = 0;
+  uint32_t i = 0, j = 0;
   for (; i < a; i++, j++) {
     newPath[j] = path[i];
   }
@@ -258,12 +259,12 @@ Solution Solution::twoOpt(UINT a, UINT b) {
   return newSol;
 }
 
-Solution Solution::translate(UINT a, UINT b) {
+Solution Solution::translate(uint32_t a, uint32_t b) {
   auto newSol = pool->create();
   auto &path = getPath();
   auto &newPath = newSol.getPath();
 
-  UINT i = 0, j = 0;
+  uint32_t i = 0, j = 0;
   for (; i < a; i++, j++) {
     newPath[j] = path[i];
   }
@@ -278,12 +279,12 @@ Solution Solution::translate(UINT a, UINT b) {
   return newSol;
 }
 
-Solution Solution::switching(UINT a, UINT b) {
+Solution Solution::switching(uint32_t a, uint32_t b) {
   auto newSol = pool->create();
   auto &path = getPath();
   auto &newPath = newSol.getPath();
 
-  UINT i = 0, j = 0;
+  uint32_t i = 0, j = 0;
   for (; i < a; i++, j++) {
     newPath[j] = path[i];
   }
@@ -304,4 +305,4 @@ bool Solution::operator==(const Solution &rhs) const {
 }
 
 bool Solution::operator!=(const Solution &rhs) const { return !(rhs == *this); }
-}
+} // namespace tsp

@@ -28,10 +28,12 @@ The solver is implemented in C++ and doesn't use the nodejs main event loop for 
 &nbsp;&nbsp;&nbsp;&nbsp;reheatInterval - 100000, <br/>
 } <br/>
 
-<strong>Install:</strong>
-<code>npm install node-tspsolver</code>
+## Install:
+<code>npm install node-tspsolver</code><br/>
+#### NOTE:
+Since this is a C++ addon, it requires <strong>node-gyp</strong> to be properly configured in your machine. Please go through the instructions provided in https://github.com/nodejs/node-gyp to properly set it up for your platform.
 
-<strong>Examples:</strong>
+## Examples:
 <pre><code>
 
 var solver = require('node-tspsolver')

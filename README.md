@@ -47,7 +47,7 @@ var costMatrix = [
 
 solver
     .solveTsp(costMatrix, true, {})
-    .then(function (result)) {
+    .then(function (result) {
         console.log(result) // result is an array of indices specifying the route.
     })
 
